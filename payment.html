@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - StudyHub Library</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="paymentstyle.css">
+</head>
+<body>
+    <div class="payment-container">
+        <div class="payment-header">
+            <div class="logo">
+                <i class="fas fa-book-open"></i>
+                <span>StudyHub Library</span>
+            </div>
+            <div class="step-indicator">
+                <div class="step completed">
+                    <i class="fas fa-user-check"></i>
+                    <span>Registration</span>
+                </div>
+                <div class="step active">
+                    <i class="fas fa-credit-card"></i>
+                    <span>Payment</span>
+                </div>
+                <div class="step">
+                    <i class="fas fa-id-card"></i>
+                    <span>Membership</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="payment-content">
+            <div class="payment-summary">
+                <h2>Payment Summary</h2>
+                <div class="student-info">
+                    <div class="student-photo">
+                        <img id="studentPhoto" src="https://via.placeholder.com/100" alt="Student Photo">
+                    </div>
+                    <div class="student-details">
+                        <h3 id="studentName">Loading...</h3>
+                        <p id="studentPhone">Loading...</p>
+                        <p id="studentEmail">Loading...</p>
+                    </div>
+                </div>
+                
+                <div class="plan-details">
+                    <div class="plan-item">
+                        <span>Membership Plan:</span>
+                        <span id="selectedPlan">Loading...</span>
+                    </div>
+                    <div class="plan-item">
+                        <span>Duration:</span>
+                        <span id="planDuration">Loading...</span>
+                    </div>
+                    <div class="plan-item">
+                        <span>Original Amount:</span>
+                        <span id="originalAmount">₹0</span>
+                    </div>
+                    <div class="plan-item discount" id="discountRow" style="display: none;">
+                        <span>Student Discount (10%):</span>
+                        <span id="discountAmount">-₹0</span>
+                    </div>
+                    <div class="plan-item total">
+                        <span>Total Amount:</span>
+                        <span id="totalAmount">₹0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="payment-methods">
+                <h2>Choose Payment Method</h2>
+                
+                <div class="payment-options">
+                    <div class="payment-option" data-method="upi">
+                        <div class="payment-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <div class="payment-info">
+                            <h3>UPI Payment</h3>
+                            <p>Pay using Google Pay, PhonePe, Paytm</p>
+                        </div>
+                        <div class="payment-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+
+                    <div class="payment-option" data-method="card">
+                        <div class="payment-icon">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                        <div class="payment-info">
+                            <h3>Credit/Debit Card</h3>
+                            <p>Visa, Mastercard, RuPay accepted</p>
+                        </div>
+                        <div class="payment-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+
+                    <div class="payment-option" data-method="netbanking">
+                        <div class="payment-icon">
+                            <i class="fas fa-university"></i>
+                        </div>
+                        <div class="payment-info">
+                            <h3>Net Banking</h3>
+                            <p>All major banks supported</p>
+                        </div>
+                        <div class="payment-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+
+                    <div class="payment-option" data-method="cash">
+                        <div class="payment-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="payment-info">
+                            <h3>Pay at Library</h3>
+                            <p>Visit library and pay in cash</p>
+                        </div>
+                        <div class="payment-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- UPI Payment Modal -->
+        <div class="payment-modal" id="upiModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>UPI Payment</h3>
+                    <button class="close-btn" onclick="closePaymentModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="qr-section">
+                        <div class="qr-code">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=studyhub@paytm&pn=StudyHub Library&am=500&cu=INR" alt="QR Code">
+                        </div>
+                        <p>Scan QR code with any UPI app</p>
+                    </div>
+                    <div class="upi-apps">
+                        <h4>Or pay directly with:</h4>
+                        <div class="upi-buttons">
+                            <button class="upi-btn" onclick="payWithUPI('gpay')">
+                                <i class="fab fa-google-pay"></i> Google Pay
+                            </button>
+                            <button class="upi-btn" onclick="payWithUPI('phonepe')">
+                                <i class="fas fa-mobile-alt"></i> PhonePe
+                            </button>
+                            <button class="upi-btn" onclick="payWithUPI('paytm')">
+                                <i class="fas fa-wallet"></i> Paytm
+                            </button>
+                        </div>
+                    </div>
+                    <div class="payment-status" id="upiStatus">
+                        <p>Waiting for payment...</p>
+                        <div class="loading-spinner"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card Payment Modal -->
+        <div class="payment-modal" id="cardModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Card Payment</h3>
+                    <button class="close-btn" onclick="closePaymentModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="cardForm">
+                        <div class="form-group">
+                            <label>Card Number</label>
+                            <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Expiry Date</label>
+                                <input type="text" id="expiryDate" placeholder="MM/YY" maxlength="5">
+                            </div>
+                            <div class="form-group">
+                                <label>CVV</label>
+                                <input type="text" id="cvv" placeholder="123" maxlength="3">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Cardholder Name</label>
+                            <input type="text" id="cardholderName" placeholder="Enter name on card">
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-lock"></i> Pay Securely
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Net Banking Modal -->
+        <div class="payment-modal" id="netbankingModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Net Banking</h3>
+                    <button class="close-btn" onclick="closePaymentModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="bank-selection">
+                        <h4>Select Your Bank</h4>
+                        <div class="bank-grid">
+                            <button class="bank-btn" onclick="payWithBank('sbi')">
+                                <img src="https://via.placeholder.com/40" alt="SBI">
+                                State Bank of India
+                            </button>
+                            <button class="bank-btn" onclick="payWithBank('hdfc')">
+                                <img src="https://via.placeholder.com/40" alt="HDFC">
+                                HDFC Bank
+                            </button>
+                            <button class="bank-btn" onclick="payWithBank('icici')">
+                                <img src="https://via.placeholder.com/40" alt="ICICI">
+                                ICICI Bank
+                            </button>
+                            <button class="bank-btn" onclick="payWithBank('axis')">
+                                <img src="https://via.placeholder.com/40" alt="Axis">
+                                Axis Bank
+                            </button>
+                            <button class="bank-btn" onclick="payWithBank('pnb')">
+                                <img src="https://via.placeholder.com/40" alt="PNB">
+                                Punjab National Bank
+                            </button>
+                            <button class="bank-btn" onclick="payWithBank('other')">
+                                <img src="https://via.placeholder.com/40" alt="Other">
+                                Other Banks
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cash Payment Modal -->
+        <div class="payment-modal" id="cashModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Pay at Library</h3>
+                    <button class="close-btn" onclick="closePaymentModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="cash-info">
+                        <div class="info-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="library-details">
+                            <h4>StudyHub Library</h4>
+                            <p>Haldoni, Greater Noida (UP)<br>Knowledge Park - 201306</p>
+                            <p><strong>Working Hours:</strong> 6:00 AM - 11:00 PM</p>
+                            <p><strong>Phone:</strong> +91 98765 43210</p>
+                        </div>
+                    </div>
+                    <div class="cash-instructions">
+                        <h4>Instructions:</h4>
+                        <ul>
+                            <li>Visit our library with a valid ID</li>
+                            <li>Show this registration confirmation</li>
+                            <li>Pay ₹<span id="cashAmount">0</span> in cash</li>
+                            <li>Get your membership card immediately</li>
+                        </ul>
+                    </div>
+                    <button class="btn btn-primary" onclick="confirmCashPayment()">
+                        <i class="fas fa-check"></i> Confirm Cash Payment
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success Modal -->
+        <div class="payment-modal" id="successModal">
+            <div class="modal-content success">
+                <div class="success-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h2>Payment Successful!</h2>
+                <p>Your membership has been activated</p>
+                <div class="membership-card" id="membershipCard">
+                    <div class="card-header">
+                        <div class="card-logo">
+                            <i class="fas fa-book-open"></i>
+                            <span>StudyHub Library</span>
+                        </div>
+                        <div class="card-id" id="membershipId">LIB001</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="member-photo">
+                            <img id="memberPhoto" src="https://via.placeholder.com/80" alt="Member">
+                        </div>
+                        <div class="member-info">
+                            <h3 id="memberName">Student Name</h3>
+                            <p id="memberPlan">Monthly Pass</p>
+                            <p>Valid Till: <span id="validTill">31 Dec 2024</span></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="success-actions">
+                    <button class="btn btn-primary" onclick="downloadMembershipCard()">
+                        <i class="fas fa-download"></i> Download Card
+                    </button>
+                    <button class="btn btn-secondary" onclick="goToStudentPortal()">
+                        <i class="fas fa-user"></i> Student Portal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="paymentscript.js"></script>
+</body>
+</html>
