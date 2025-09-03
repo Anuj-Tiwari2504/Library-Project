@@ -204,6 +204,17 @@ function handleRegistration(e) {
         idProof: null
     };
     
+    // Show loading state
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    if (!submitBtn) {
+        alert('Submit button not found');
+        return;
+    }
+    
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing Payment...';
+    submitBtn.disabled = true;
+    
     // Handle photo upload
     if (photo && photo.files[0]) {
         const reader = new FileReader();
@@ -219,24 +230,32 @@ function handleRegistration(e) {
     // Validate required fields
     if (!registrationData.fullName) {
         showNotification('Please enter your full name', 'error');
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
         fullName.focus();
         return;
     }
     
     if (!registrationData.phone) {
         showNotification('Please enter your phone number', 'error');
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
         phone.focus();
         return;
     }
     
     if (!registrationData.selectedPlan) {
         showNotification('Please select a membership plan', 'error');
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
         selectedPlan.focus();
         return;
     }
     
     if (!terms.checked) {
         showNotification('Please agree to Terms & Conditions', 'error');
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
         terms.focus();
         return;
     }
@@ -244,6 +263,8 @@ function handleRegistration(e) {
     // Validate phone number (Indian format)
     if (!/^[6-9]\d{9}$/.test(registrationData.phone)) {
         showNotification('Please enter a valid 10-digit Indian phone number', 'error');
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
         phone.focus();
         return;
     }
@@ -251,23 +272,11 @@ function handleRegistration(e) {
     // Validate email if provided
     if (registrationData.email && !validateEmail(registrationData.email)) {
         showNotification('Please enter a valid email address', 'error');
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
         email.focus();
         return;
     }
-    
-    // Show loading state
-    const submitBtn = e.target.querySelector('button[type="submit"]');
-    if (!submitBtn) {
-        alert('Submit button not found');
-        return;
-    }
-    
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-    submitBtn.disabled = true;
-    
-    // Don't process here, will be handled by processRegistration function
-    return;
 }
 
 function showSuccessModal(data) {
@@ -406,11 +415,28 @@ function processRegistration(registrationData, submitBtn, originalText) {
             registrations.push(registrationData);
             localStorage.setItem('library_registrations', JSON.stringify(registrations));
             
+            // Store member data for dashboard
+            const memberData = {
+                name: registrationData.fullName,
+                phone: registrationData.phone,
+                email: registrationData.email,
+                plan: registrationData.selectedPlan,
+                amount: registrationData.totalAmount,
+                photo: registrationData.photo,
+                joinDate: new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+                cardNumber: '2024' + Math.floor(Math.random() * 1000).toString().padStart(3, '0'),
+                validUntil: new Date(Date.now() + 365*24*60*60*1000).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+                points: 0,
+                referrals: 0,
+                referralEarnings: 0
+            };
+            localStorage.setItem('memberData', JSON.stringify(memberData));
+            
             showNotification('Registration successful! Redirecting to payment...', 'success');
             
             // Redirect to payment page
             setTimeout(() => {
-                window.location.href = `payment.html?regId=${registrationData.id}`;
+                window.location.href = 'payment.html';
             }, 1500);
             
         } catch (error) {
@@ -419,8 +445,10 @@ function processRegistration(registrationData, submitBtn, originalText) {
         }
         
         // Reset button
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
+        if (submitBtn) {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
         
     }, 2000);
 }
